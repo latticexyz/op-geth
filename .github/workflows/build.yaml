@@ -1,0 +1,27 @@
+name: release
+
+on:
+  push:
+    branches:
+      - 'build-workflow'
+
+jobs:
+  build_release:
+    name: build_release
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: build
+        run: make geth
+      - name: version
+        run: echo "::set-output name=version::$(./build/bin/geth --version)"
+        id: version
+      - name: upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: binary-${{ steps.version.outputs.version }}
+          path: build/bin/geth
+          if-no-files-found: error
